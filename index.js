@@ -20,24 +20,26 @@ function handleUpdateUser(req, res) {
   const { id } = req.params;
   const changes = req.body;
 
+  if (!changes.name || !changes.bio) {
+    res
+      .status(400)
+      .json({ errorMessage: 'Please provide name and bio for the user' });
+  }
+
   db.update(id, changes)
     .then(updated => {
       if (updated) {
-        res.status(200).json(changes);
-      } else if (!changes.name || !changes.body) {
-        res
-          .status(400)
-          .json({ errorMessage: 'Please provide name and bio for the user' });
+        res.status(200).json(updated);
       } else {
-        res.status(404).json({
-          errorMessage: 'The user with the specifed id does not exist'
-        });
+        res
+          .status(404)
+          .json({ message: 'The user with the specifed ID does ot exist' });
       }
     })
     .catch(err => {
       res
         .status(500)
-        .json({ errorMessage: 'The user information could not be modified' });
+        .json({ error: 'The user information could not be modified' });
     });
 }
 
@@ -50,30 +52,31 @@ function handleDeleteUser(req, res) {
         res.status(204).end();
       } else {
         res.status(404).json({
-          errorMessage: 'The user with the specified id does not exist'
+          message: 'The user with the specified id does not exist'
         });
       }
     })
     .catch(err => {
-      res.status(500).json({ errorMessage: 'The user could not be removed' });
+      res.status(500).json({ error: 'The user could not be removed' });
     });
 }
 
 function handleGetSingleUser(req, res) {
   const { id } = req.params;
+
   db.findById(id)
     .then(user => {
       if (user) {
         res.status(201).json(user);
       } else {
         res.status(404).json({
-          errorMessage: 'The user with the specified id does not exist'
+          message: 'The user with the specified id does not exist'
         });
       }
     })
     .catch(err => {
       res.status(500).json({
-        errorMessage: 'The user information cannot be retrieved'
+        error: 'The user information cannot be retrieved'
       });
     });
 }
@@ -85,7 +88,7 @@ function handleGetAllUsers(req, res) {
     })
     .catch(err => {
       res.status(500).json({
-        errorMessage: 'The users information could not be retirieved'
+        error: 'The users information could not be retirieved'
       });
     });
 }
